@@ -3,8 +3,11 @@ var MongoClient = require('mongodb').MongoClient,
 	global   = require('../../components/globalFunctions'), 
 	fs        = require('fs');
 var uuid = require('node-uuid');
+var redis = require("redis"),
+        client = redis.createClient();
 
 module.exports.registerUser = function(req, res){	
+	
 	global.checkKey(req, res, function(err, result){
 		//If Key valid
 		if(result){
@@ -29,6 +32,22 @@ module.exports.registerUser = function(req, res){
 		        			        }
 		        			        
 		        			        if(result.result.ok === 1){
+		        			        	
+		        			        	client.get("location", function(err, reply) {
+		        			        	    // reply is null when the key is missing
+		        			        	   	
+		        			        	    if(typeof reply === 'undefined' || reply === '' || reply === null){
+
+		        			        	    	var location = [result.ops[0]];
+		        			        			client.set("location", location);    	
+		        			        	    }
+		        			        	    else{
+		        			        	    	reply.push(result.ops[0]);
+		        			        	    	client.set("location", location);    		
+		        			        	    }
+		        			        	});
+		        			        	
+		        			        	
 		        			        	res.contentType('json');
 		        			        	res.write(JSON.stringify({success:true}));
 		        			        }

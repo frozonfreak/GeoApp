@@ -17,6 +17,9 @@ var MongoClient = require('mongodb').MongoClient;
 var DBtools   = require('./components/db/dbFunction');
 var uuid = require('node-uuid');
 
+var redis = require("redis"),
+        client = redis.createClient();
+        
 // Connect to database
 mongoose.connect(config.mongo.uri, config.mongo.options);
 mongoose.connection.on('error', function(err) {
