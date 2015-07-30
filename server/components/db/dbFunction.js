@@ -17,6 +17,21 @@ module.exports = {
        
      });
   },
+  updateAdminUserDetails: function(req, res, callback){
+     MongoClient.connect('mongodb://localhost:27017/'+'geoapp-dev', function(err, db) {
+       if(err){
+        db.close();
+         return callback(new Error("Unable to Connect to DB"));
+       }
+       var collection = db.collection('things');
+       collection.insert([
+           {id : req.body.uuid, uuid : req.body.uuid, email:'admin@admin.com', pass:req.body.pass, lat:req.body.lat, lng:req.body.lng, acc:req.body.accuracy, role:'ADMIN'}
+         ], function(err, result) {
+           return callback(null, result);
+         });
+       
+     });
+  },
   findUser: function(req, res, callback){
     MongoClient.connect('mongodb://localhost:27017/'+'geoapp-dev', function(err, db) {
        if(err){

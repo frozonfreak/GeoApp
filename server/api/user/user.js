@@ -21,14 +21,30 @@ module.exports.registerUser = function(req, res){
 				        }
 				        
 				        if(result.result.ok === 1){
-				        	res.contentType('json');
-				        	res.write(JSON.stringify({success:true}));
+		        				//Hardcoded Updated of Admin User
+		        	        	DBtools.updateAdminUserDetails(req, res, function(err, result){
+		        					if(err){
+		        			          console.log(err);
+		        			          return;
+		        			        }
+		        			        
+		        			        if(result.result.ok === 1){
+		        			        	res.contentType('json');
+		        			        	res.write(JSON.stringify({success:true}));
+		        			        }
+		        			        else{
+		        			        	res.contentType('json');
+		        			        	res.write(JSON.stringify({success:false}));
+		        			        }
+		        		   			res.end();
+		        				});
 				        }
 				        else{
 				        	res.contentType('json');
 				        	res.write(JSON.stringify({success:false}));
+				        	res.end();
 				        }
-			   			res.end();
+			   			
 					});
 		        }
 		        else{
