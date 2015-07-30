@@ -35,16 +35,9 @@ module.exports.registerUser = function(req, res){
 		        			        	
 		        			        	client.get("location", function(err, reply) {
 		        			        	    // reply is null when the key is missing
-		        			        	   	
-		        			        	    if(typeof reply === 'undefined' || reply === '' || reply === null){
-
-		        			        	    	var location = [result.ops[0]];
-		        			        			client.set("location", location);    	
-		        			        	    }
-		        			        	    else{
-		        			        	    	reply.push(result.ops[0]);
-		        			        	    	client.set("location", location);    		
-		        			        	    }
+		        			        		
+		        			        	    console.log(JSON.stringify(result.ops[0]));
+		        			        		client.set("location", JSON.stringify(result.ops[0]));    	
 		        			        	});
 		        			        	
 		        			        	
@@ -215,24 +208,39 @@ module.exports.getUserLocationDetails = function(req, res){
 			        if(result.length > 0){
 			        	if(Math.floor(Date.now() / 1000) - result[0].timestamp <1800){//session for 30 mins
 			        		
-			        		//Valid Session. 
-			        		//Get User details now. 
-		        			DBtools.getUserLocationDetails(req, res, function(err, result){
-		        				if(err){
-		        		          console.log(err);
-		        		          return;
-		        		        }
-	       				        if(result.length > 0){
-	       				        	res.contentType('json');
-	       		    		        res.write(JSON.stringify({success:true, data:result}));
+
+			        		//Switch between redis and DB
+			        		client.get("location", function(err, reply) {
+			        		    console.log(JSON.parse(reply));
+			        		    if(JSON.parse(reply) !== ''){
+			        		    	var arrResponse = [];
+			        		    	arrResponse[0] = JSON.parse(reply);
+			        		    	res.contentType('json');
+	       		    		        res.write(JSON.stringify({success:true, data:arrResponse}));
 	       		    	   			res.end();
-	       				        }
-	       				        else{
-	       		    				res.contentType('json');
-	       		    		        res.write(JSON.stringify({success:false, error:'User not found'}));
-	       		    	   			res.end();
-	       				        } 
-		        		    });
+			        		    }
+			        		    else{
+	    			        		//Valid Session. 
+	    			        		//Get User details now. 
+	    		        			DBtools.getUserLocationDetails(req, res, function(err, result){
+	    		        				if(err){
+	    		        		          console.log(err);
+	    		        		          return;
+	    		        		        }
+	    	       				        if(result.length > 0){
+	    	       				        	res.contentType('json');
+	    	       		    		        res.write(JSON.stringify({success:true, data:result}));
+	    	       		    	   			res.end();
+	    	       				        }
+	    	       				        else{
+	    	       		    				res.contentType('json');
+	    	       		    		        res.write(JSON.stringify({success:false, error:'User not found'}));
+	    	       		    	   			res.end();
+	    	       				        } 
+	    		        		    });
+			        		    }
+			        		});
+			        		
 			        	} 
 			        	else{
         					res.contentType('json');
